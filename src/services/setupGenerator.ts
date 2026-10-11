@@ -1,10 +1,17 @@
-import { CITIES, NEUTRAL_BUILDINGS, PRIVATE_BUILDINGS } from "../data/gameData";
+import {
+  CITIES,
+  NEUTRAL_BUILDINGS,
+  PRIVATE_BUILDINGS,
+  STATION_MASTERS,
+  STATION_MASTER_SPACES,
+} from "../data/gameData";
 import type {
   CityResult,
   PrivateBuildingResult,
   SectionSeeds,
   SetupResult,
   SetupState,
+  StationMaster,
 } from "../models/game";
 import { createRng, randomSide, shuffle } from "../utils/random";
 import { deriveSectionSeed } from "./seedGenerator";
@@ -16,6 +23,16 @@ import { deriveSectionSeed } from "./seedGenerator";
 export function generateNeutralBuildings(seed: number) {
   const rng = createRng(seed);
   return shuffle(NEUTRAL_BUILDINGS, rng);
+}
+
+/**
+ * Sorteia os mestres das estações: embaralha os 8 e fica com os 5 primeiros,
+ * um para cada espaço de mestre de estação (posição 1 a 5). Os outros 3
+ * voltam à caixa.
+ */
+export function generateStationMasters(seed: number): StationMaster[] {
+  const rng = createRng(seed);
+  return shuffle(STATION_MASTERS, rng).slice(0, STATION_MASTER_SPACES);
 }
 
 /**
@@ -43,25 +60,27 @@ export function generateCities(seed: number): CityResult[] {
 }
 
 /**
- * A partir de uma seed principal, deriva as três seeds de seção
- * (construções neutras, construções de jogador e cidades).
+ * A partir de uma seed principal, deriva as seeds de seção (construções
+ * neutras, mestres das estações, construções de jogador e cidades).
  */
 export function deriveSectionSeedsFromMaster(masterSeed: number): SectionSeeds {
   return {
     neutralSeed: deriveSectionSeed(masterSeed, "neutral"),
+    stationMasterSeed: deriveSectionSeed(masterSeed, "stationMaster"),
     playerSeed: deriveSectionSeed(masterSeed, "player"),
     citySeed: deriveSectionSeed(masterSeed, "city"),
   };
 }
 
 /**
- * Monta o resultado completo do setup (as três seções já sorteadas) a
+ * Monta o resultado completo do setup (todas as seções já sorteadas) a
  * partir de um estado de seeds.
  */
 export function buildSetupResult(state: SetupState): SetupResult {
   return {
     ...state,
     neutralBuildings: generateNeutralBuildings(state.neutralSeed),
+    stationMasters: generateStationMasters(state.stationMasterSeed),
     privateBuildings: generatePrivateBuildings(state.playerSeed),
     cities: generateCities(state.citySeed),
     createdAt: new Date().toISOString(),

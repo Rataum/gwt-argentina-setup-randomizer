@@ -10,8 +10,8 @@
  *
  * - `deriveSectionSeed(masterSeed, salt)` deriva, de forma determinística, uma
  *   seed "filha" a partir da seed principal e de um identificador de seção
- *   ("neutral" | "player" | "city"). A mesma seed principal sempre deriva as
- *   mesmas três seeds de seção, o que é o que garante que uma `masterSeed`
+ *   ("neutral" | "stationMaster" | "player" | "city"). A mesma seed principal
+ *   sempre deriva as mesmas seeds de seção, o que é o que garante que uma `masterSeed`
  *   reproduz o setup completo.
  */
 
@@ -39,7 +39,7 @@ function hashString(value: string): number {
   return hash >>> 0;
 }
 
-export type SectionSalt = "neutral" | "player" | "city";
+export type SectionSalt = "neutral" | "stationMaster" | "player" | "city";
 
 export function deriveSectionSeed(masterSeed: number, salt: SectionSalt): number {
   const saltHash = hashString(salt);

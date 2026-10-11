@@ -4,6 +4,8 @@
  * Estes tipos descrevem apenas os componentes de
  * Great Western Trail: Argentina usados pelo randomizer:
  * - 8 construções neutras (tiles marcados com as letras A a H);
+ * - 8 mestres das estações, dos quais 5 são sorteados, um para cada
+ *   espaço de mestre de estação do tabuleiro (os outros 3 voltam à caixa);
  * - 10 construções privadas (tiles numerados de 1 a 10, cada um com
  *   um lado "a" ou "b" impresso);
  * - 3 tiles de cidade/porto europeu, usados na variante para 2-3
@@ -15,6 +17,14 @@ export type Side = "A" | "B";
 export interface NeutralBuilding {
   id: string;
   letter: string;
+}
+
+export interface StationMaster {
+  id: string;
+  /** Rótulo curto, usado na interface. */
+  name: string;
+  /** Texto completo da pontuação do mestre da estação. */
+  description: string;
 }
 
 export interface PrivateBuilding {
@@ -38,12 +48,13 @@ export interface CityResult {
 }
 
 /**
- * As três sementes que determinam, de forma independente, cada seção do
- * setup. Duas partidas com os mesmos três valores produzem exatamente o
- * mesmo resultado nas três seções.
+ * As sementes que determinam, de forma independente, cada seção do
+ * setup. Duas partidas com os mesmos valores produzem exatamente o
+ * mesmo resultado em todas as seções.
  */
 export interface SectionSeeds {
   neutralSeed: number;
+  stationMasterSeed: number;
   playerSeed: number;
   citySeed: number;
 }
@@ -52,7 +63,7 @@ export interface SectionSeeds {
  * Estado completo necessário para reproduzir (e compartilhar) um setup.
  *
  * `masterSeed` é a semente "principal", mostrada ao usuário e usada em
- * `?seed=...`. Quando um setup é criado do zero, as três sementes de seção
+ * `?seed=...`. Quando um setup é criado do zero, as sementes de seção
  * são derivadas dela. Quando uma seção é sorteada novamente de forma
  * independente, apenas a semente daquela seção muda — o `masterSeed`
  * continua sendo exibido como referência histórica, mas deixa de, sozinho,
@@ -65,6 +76,8 @@ export interface SetupState extends SectionSeeds {
 
 export interface SetupResult extends SetupState {
   neutralBuildings: NeutralBuilding[];
+  /** Os 5 mestres sorteados, na ordem dos espaços de mestre de estação (1 a 5). */
+  stationMasters: StationMaster[];
   privateBuildings: PrivateBuildingResult[];
   cities: CityResult[];
   createdAt: string;

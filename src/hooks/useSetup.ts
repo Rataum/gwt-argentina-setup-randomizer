@@ -15,6 +15,8 @@ export interface UseSetupApi {
   newSetup: () => SetupState;
   /** Sorteia novamente apenas a ordem das construções neutras. */
   rerollNeutral: () => void;
+  /** Sorteia novamente apenas os mestres das estações. */
+  rerollStationMasters: () => void;
   /** Sorteia novamente apenas os lados das construções de jogador. */
   rerollPlayers: () => void;
   /** Sorteia novamente apenas os lados das cidades/portos. */
@@ -43,6 +45,10 @@ export function useSetup(initialState?: SetupState): UseSetupApi {
     setState((prev) => ({ ...prev, neutralSeed: createRandomSeed() }));
   }, []);
 
+  const rerollStationMasters = useCallback(() => {
+    setState((prev) => ({ ...prev, stationMasterSeed: createRandomSeed() }));
+  }, []);
+
   const rerollPlayers = useCallback(() => {
     setState((prev) => ({ ...prev, playerSeed: createRandomSeed() }));
   }, []);
@@ -55,5 +61,14 @@ export function useSetup(initialState?: SetupState): UseSetupApi {
     setState(next);
   }, []);
 
-  return { state, result, newSetup, rerollNeutral, rerollPlayers, rerollCities, loadState };
+  return {
+    state,
+    result,
+    newSetup,
+    rerollNeutral,
+    rerollStationMasters,
+    rerollPlayers,
+    rerollCities,
+    loadState,
+  };
 }

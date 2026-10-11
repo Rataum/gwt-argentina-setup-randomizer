@@ -11,14 +11,15 @@ import { deriveSectionSeedsFromMaster } from "./setupGenerator";
  * `useSetup.ts`), a URL também carrega a seed daquela seção específica, para
  * que o link continue reproduzindo exatamente o que está na tela:
  *   ?seed=482913&ns=77281            (construções neutras sorteadas à parte)
- *   ?seed=482913&ps=12345&cs=98765   (jogadores e cidades sorteados à parte)
+ *   ?seed=482913&ms=4410&cs=98765    (mestres e cidades sorteados à parte)
  *
- * Parâmetros: seed = masterSeed, ns = neutralSeed, ps = playerSeed,
- * cs = citySeed.
+ * Parâmetros: seed = masterSeed, ns = neutralSeed, ms = stationMasterSeed,
+ * ps = playerSeed, cs = citySeed.
  */
 
 const PARAM_MASTER = "seed";
 const PARAM_NEUTRAL = "ns";
+const PARAM_STATION_MASTER = "ms";
 const PARAM_PLAYER = "ps";
 const PARAM_CITY = "cs";
 
@@ -41,10 +42,12 @@ export function readStateFromSearch(search: string): SetupState | null {
   const derived = deriveSectionSeedsFromMaster(masterSeed);
 
   const neutralSeed = parseSeedParam(params.get(PARAM_NEUTRAL)) ?? derived.neutralSeed;
+  const stationMasterSeed =
+    parseSeedParam(params.get(PARAM_STATION_MASTER)) ?? derived.stationMasterSeed;
   const playerSeed = parseSeedParam(params.get(PARAM_PLAYER)) ?? derived.playerSeed;
   const citySeed = parseSeedParam(params.get(PARAM_CITY)) ?? derived.citySeed;
 
-  return { masterSeed, neutralSeed, playerSeed, citySeed };
+  return { masterSeed, neutralSeed, stationMasterSeed, playerSeed, citySeed };
 }
 
 /**
@@ -60,6 +63,9 @@ export function buildSearchFromState(state: SetupState): string {
 
   if (state.neutralSeed !== derived.neutralSeed) {
     params.set(PARAM_NEUTRAL, String(state.neutralSeed));
+  }
+  if (state.stationMasterSeed !== derived.stationMasterSeed) {
+    params.set(PARAM_STATION_MASTER, String(state.stationMasterSeed));
   }
   if (state.playerSeed !== derived.playerSeed) {
     params.set(PARAM_PLAYER, String(state.playerSeed));

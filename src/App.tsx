@@ -67,6 +67,7 @@ export function App() {
       <SetupPage
         result={setup.result}
         onRerollNeutral={setup.rerollNeutral}
+        onRerollStationMasters={setup.rerollStationMasters}
         onRerollPlayers={setup.rerollPlayers}
         onRerollCities={setup.rerollCities}
         onNewSetup={handleNewSetup}

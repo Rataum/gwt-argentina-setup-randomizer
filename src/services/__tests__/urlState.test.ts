@@ -13,13 +13,15 @@ describe("readStateFromSearch", () => {
     const state = readStateFromSearch("?seed=482913");
     const expected = deriveSectionSeedsFromMaster(482913);
     expect(state?.neutralSeed).toBe(expected.neutralSeed);
+    expect(state?.stationMasterSeed).toBe(expected.stationMasterSeed);
     expect(state?.playerSeed).toBe(expected.playerSeed);
     expect(state?.citySeed).toBe(expected.citySeed);
   });
 
   it("respeita overrides de seção presentes na URL", () => {
-    const state = readStateFromSearch("?seed=482913&ns=1234");
+    const state = readStateFromSearch("?seed=482913&ns=1234&ms=5678");
     expect(state?.neutralSeed).toBe(1234);
+    expect(state?.stationMasterSeed).toBe(5678);
   });
 
   it("retorna null quando não há seed na URL", () => {
@@ -49,6 +51,17 @@ describe("buildSearchFromState", () => {
     const withReroll = { ...base, citySeed: 55555 };
     const search = buildSearchFromState(withReroll);
     expect(search).toContain("cs=55555");
+
+    const parsed = readStateFromSearch(search);
+    expect(parsed).toEqual(withReroll);
+  });
+
+  it("inclui o override dos mestres das estações sorteados à parte (ms)", () => {
+    const masterSeed = 482913;
+    const base = { masterSeed, ...deriveSectionSeedsFromMaster(masterSeed) };
+    const withReroll = { ...base, stationMasterSeed: 44100 };
+    const search = buildSearchFromState(withReroll);
+    expect(search).toContain("ms=44100");
 
     const parsed = readStateFromSearch(search);
     expect(parsed).toEqual(withReroll);
