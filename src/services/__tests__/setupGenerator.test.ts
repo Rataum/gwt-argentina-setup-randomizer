@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { CITIES, NEUTRAL_BUILDINGS, PRIVATE_BUILDINGS } from "../../data/gameData";
+import {
+  CITIES,
+  NEUTRAL_BUILDINGS,
+  PRIVATE_BUILDINGS,
+  STATION_MASTERS,
+  STATION_MASTER_SPACES,
+} from "../../data/gameData";
 import {
   buildSetupResult,
   deriveSectionSeedsFromMaster,
   generateCities,
   generateNeutralBuildings,
   generatePrivateBuildings,
+  generateStationMasters,
 } from "../setupGenerator";
 
 describe("generateNeutralBuildings", () => {
@@ -25,6 +32,34 @@ describe("generateNeutralBuildings", () => {
     const resultLetters = [...result.map((b) => b.letter)].sort();
     const originalLetters = [...NEUTRAL_BUILDINGS.map((b) => b.letter)].sort();
     expect(resultLetters).toEqual(originalLetters);
+  });
+});
+
+describe("generateStationMasters", () => {
+  it("existem 8 mestres das estações cadastrados, todos com id único", () => {
+    expect(STATION_MASTERS).toHaveLength(8);
+    expect(new Set(STATION_MASTERS.map((m) => m.id)).size).toBe(8);
+  });
+
+  it("sorteia exatamente 5 mestres, um para cada espaço de estação", () => {
+    const result = generateStationMasters(1);
+    expect(result).toHaveLength(STATION_MASTER_SPACES);
+    expect(STATION_MASTER_SPACES).toBe(5);
+  });
+
+  it("os 5 mestres sorteados são todos diferentes e vêm dos 8 originais", () => {
+    const result = generateStationMasters(2024);
+    const ids = result.map((m) => m.id);
+    expect(new Set(ids).size).toBe(5);
+
+    const validIds = STATION_MASTERS.map((m) => m.id);
+    for (const id of ids) {
+      expect(validIds).toContain(id);
+    }
+  });
+
+  it("a mesma seed produz sempre os mesmos mestres, na mesma ordem", () => {
+    expect(generateStationMasters(482913)).toEqual(generateStationMasters(482913));
   });
 });
 
@@ -77,6 +112,7 @@ describe("reprodutibilidade da seed", () => {
     const resultB = buildSetupResult(state);
 
     expect(resultA.neutralBuildings).toEqual(resultB.neutralBuildings);
+    expect(resultA.stationMasters).toEqual(resultB.stationMasters);
     expect(resultA.privateBuildings).toEqual(resultB.privateBuildings);
     expect(resultA.cities).toEqual(resultB.cities);
   });
@@ -89,10 +125,11 @@ describe("reprodutibilidade da seed", () => {
     const resultB = buildSetupResult(stateB);
 
     const sameNeutral = JSON.stringify(resultA.neutralBuildings) === JSON.stringify(resultB.neutralBuildings);
+    const sameMasters = JSON.stringify(resultA.stationMasters) === JSON.stringify(resultB.stationMasters);
     const samePlayers = JSON.stringify(resultA.privateBuildings) === JSON.stringify(resultB.privateBuildings);
     const sameCities = JSON.stringify(resultA.cities) === JSON.stringify(resultB.cities);
 
-    expect(sameNeutral && samePlayers && sameCities).toBe(false);
+    expect(sameNeutral && sameMasters && samePlayers && sameCities).toBe(false);
   });
 
   it("regenerar uma seção (nova seed daquela seção) não modifica as outras", () => {
@@ -103,10 +140,25 @@ describe("reprodutibilidade da seed", () => {
     const withNewNeutralSeed = { ...original, neutralSeed: 999999 };
     const updatedResult = buildSetupResult(withNewNeutralSeed);
 
+    expect(updatedResult.stationMasters).toEqual(originalResult.stationMasters);
     expect(updatedResult.privateBuildings).toEqual(originalResult.privateBuildings);
     expect(updatedResult.cities).toEqual(originalResult.cities);
     // A seção regenerada tem uma seed diferente, então (com probabilidade
     // esmagadora) o resultado dela muda:
     expect(updatedResult.neutralBuildings).not.toEqual(originalResult.neutralBuildings);
+  });
+
+  it("regenerar os mestres das estações não modifica as outras seções", () => {
+    const seeds = deriveSectionSeedsFromMaster(482913);
+    const original = { masterSeed: 482913, ...seeds };
+    const originalResult = buildSetupResult(original);
+
+    const withNewMasterSeed = { ...original, stationMasterSeed: 999999 };
+    const updatedResult = buildSetupResult(withNewMasterSeed);
+
+    expect(updatedResult.neutralBuildings).toEqual(originalResult.neutralBuildings);
+    expect(updatedResult.privateBuildings).toEqual(originalResult.privateBuildings);
+    expect(updatedResult.cities).toEqual(originalResult.cities);
+    expect(updatedResult.stationMasters).not.toEqual(originalResult.stationMasters);
   });
 });

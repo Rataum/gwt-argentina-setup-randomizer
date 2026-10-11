@@ -19,8 +19,8 @@ function formatDate(iso: string): string {
 }
 
 function toSetupState(entry: HistoryEntry): SetupState {
-  const { masterSeed, neutralSeed, playerSeed, citySeed } = entry;
-  return { masterSeed, neutralSeed, playerSeed, citySeed };
+  const { masterSeed, neutralSeed, stationMasterSeed, playerSeed, citySeed } = entry;
+  return { masterSeed, neutralSeed, stationMasterSeed, playerSeed, citySeed };
 }
 
 export function HistoryPage({ onOpenEntry, onBack }: HistoryPageProps) {

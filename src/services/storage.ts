@@ -1,4 +1,5 @@
 import type { HistoryEntry, SetupState } from "../models/game";
+import { deriveSectionSeed } from "./seedGenerator";
 
 const STORAGE_KEY = "gwt-argentina:history";
 const MAX_HISTORY_ENTRIES = 50;
@@ -11,6 +12,19 @@ function isStorageAvailable(): boolean {
   }
 }
 
+/**
+ * Entradas salvas antes da inclusão dos mestres das estações não têm
+ * `stationMasterSeed`. Para elas, derivamos a seed a partir da `masterSeed`,
+ * exatamente como um setup novo faria.
+ */
+function normalizeEntry(entry: HistoryEntry): HistoryEntry {
+  return {
+    ...entry,
+    stationMasterSeed:
+      entry.stationMasterSeed ?? deriveSectionSeed(entry.masterSeed, "stationMaster"),
+  };
+}
+
 export function getHistory(): HistoryEntry[] {
   if (!isStorageAvailable()) return [];
 
@@ -19,7 +33,7 @@ export function getHistory(): HistoryEntry[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as HistoryEntry[];
     if (!Array.isArray(parsed)) return [];
-    return parsed;
+    return parsed.map(normalizeEntry);
   } catch {
     // Dados corrompidos ou inacessíveis: trata como histórico vazio em vez
     // de quebrar o aplicativo.

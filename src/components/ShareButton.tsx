@@ -1,33 +1,11 @@
 import { useState } from "react";
 import type { SetupResult } from "../models/game";
+import { formatSetupAsText } from "../services/formatSetup";
 import { buildShareUrl } from "../services/urlState";
 import styles from "./ActionButton.module.css";
 
 interface ShareButtonProps {
   result: SetupResult;
-}
-
-function formatSetupAsText(result: SetupResult, url: string): string {
-  const neutralLine = result.neutralBuildings.map((building) => building.letter).join(" ");
-  const playersLine = result.privateBuildings.map((b) => `${b.number}${b.side}`).join(" ");
-  const citiesLines = result.cities.map((city) => `${city.name} ${city.side}`).join("\n");
-
-  return [
-    "GWT Argentina",
-    "",
-    `Seed: ${result.masterSeed}`,
-    "",
-    "Construções neutras:",
-    neutralLine,
-    "",
-    "Construções dos jogadores:",
-    playersLine,
-    "",
-    "Cidades:",
-    citiesLines,
-    "",
-    url,
-  ].join("\n");
 }
 
 export function ShareButton({ result }: ShareButtonProps) {

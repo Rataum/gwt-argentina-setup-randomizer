@@ -4,12 +4,14 @@ import { CopySetupButton } from "../components/CopySetupButton";
 import { SeedDisplay } from "../components/SeedDisplay";
 import { SetupSection } from "../components/SetupSection";
 import { ShareButton } from "../components/ShareButton";
+import { StationMasterTile } from "../components/StationMasterTile";
 import type { SetupResult } from "../models/game";
 import styles from "./SetupPage.module.css";
 
 interface SetupPageProps {
   result: SetupResult;
   onRerollNeutral: () => void;
+  onRerollStationMasters: () => void;
   onRerollPlayers: () => void;
   onRerollCities: () => void;
   onNewSetup: () => void;
@@ -19,6 +21,7 @@ interface SetupPageProps {
 export function SetupPage({
   result,
   onRerollNeutral,
+  onRerollStationMasters,
   onRerollPlayers,
   onRerollCities,
   onNewSetup,
@@ -40,6 +43,18 @@ export function SetupPage({
         <SetupSection title="Construções neutras" onReroll={onRerollNeutral}>
           {result.neutralBuildings.map((building, index) => (
             <BuildingTile key={building.id} variant="neutral" position={index + 1} letter={building.letter} />
+          ))}
+        </SetupSection>
+
+        <SetupSection title="Mestres das estações" onReroll={onRerollStationMasters}>
+          {result.stationMasters.map((master, index) => (
+            <StationMasterTile
+              key={master.id}
+              position={index + 1}
+              id={master.id}
+              name={master.name}
+              description={master.description}
+            />
           ))}
         </SetupSection>
 
