@@ -1,10 +1,12 @@
 import { BuildingTile } from "../components/BuildingTile";
 import { CityTile } from "../components/CityTile";
 import { CopySetupButton } from "../components/CopySetupButton";
+import { LanguageSwitch } from "../components/LanguageSwitch";
 import { SeedDisplay } from "../components/SeedDisplay";
 import { SetupSection } from "../components/SetupSection";
 import { ShareButton } from "../components/ShareButton";
 import { StationMasterTile } from "../components/StationMasterTile";
+import { useI18n } from "../i18n/I18nContext";
 import type { SetupResult } from "../models/game";
 import styles from "./SetupPage.module.css";
 
@@ -27,44 +29,40 @@ export function SetupPage({
   onNewSetup,
   onBackHome,
 }: SetupPageProps) {
+  const { t } = useI18n();
+
   return (
     <main className={styles.page}>
       <div className={styles.header}>
         <button type="button" className={styles.backButton} onClick={onBackHome}>
-          ← Início
+          {t.setup.back}
         </button>
         <h1 className={styles.title}>GWT ARGENTINA</h1>
-        <span aria-hidden="true" />
+        <LanguageSwitch />
       </div>
 
       <SeedDisplay seed={result.masterSeed} />
 
       <div className={styles.sections}>
-        <SetupSection title="Construções neutras" onReroll={onRerollNeutral}>
+        <SetupSection title={t.setup.sections.neutralBuildings} onReroll={onRerollNeutral}>
           {result.neutralBuildings.map((building, index) => (
             <BuildingTile key={building.id} variant="neutral" position={index + 1} letter={building.letter} />
           ))}
         </SetupSection>
 
-        <SetupSection title="Mestres das estações" onReroll={onRerollStationMasters}>
+        <SetupSection title={t.setup.sections.stationMasters} onReroll={onRerollStationMasters}>
           {result.stationMasters.map((master, index) => (
-            <StationMasterTile
-              key={master.id}
-              position={index + 1}
-              id={master.id}
-              name={master.name}
-              description={master.description}
-            />
+            <StationMasterTile key={master.id} position={index + 1} id={master.id} />
           ))}
         </SetupSection>
 
-        <SetupSection title="Construções dos jogadores" onReroll={onRerollPlayers}>
+        <SetupSection title={t.setup.sections.playerBuildings} onReroll={onRerollPlayers}>
           {result.privateBuildings.map((building) => (
             <BuildingTile key={building.number} variant="player" number={building.number} side={building.side} />
           ))}
         </SetupSection>
 
-        <SetupSection title="Cidades / cais" onReroll={onRerollCities}>
+        <SetupSection title={t.setup.sections.cities} onReroll={onRerollCities}>
           {result.cities.map((city) => (
             <CityTile key={city.name} name={city.name} side={city.side} />
           ))}
@@ -73,7 +71,7 @@ export function SetupPage({
 
       <div className={styles.footerActions}>
         <button type="button" className={styles.newSetupButton} onClick={onNewSetup}>
-          🎲 Novo setup
+          {t.setup.newSetup}
         </button>
         <ShareButton result={result} />
         <CopySetupButton result={result} />

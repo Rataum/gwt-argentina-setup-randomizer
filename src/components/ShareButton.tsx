@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "../i18n/I18nContext";
 import type { SetupResult } from "../models/game";
 import { formatSetupAsText } from "../services/formatSetup";
 import { buildShareUrl } from "../services/urlState";
@@ -9,15 +10,16 @@ interface ShareButtonProps {
 }
 
 export function ShareButton({ result }: ShareButtonProps) {
+  const { t } = useI18n();
   const [feedback, setFeedback] = useState<string | null>(null);
 
   async function handleShare() {
     const url = buildShareUrl(result);
-    const text = formatSetupAsText(result, url);
+    const text = formatSetupAsText(result, t, url);
 
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ title: "GWT Argentina — Setup", text, url });
+        await navigator.share({ title: t.share.shareTitle, text, url });
         return;
       } catch {
         // Usuário cancelou o compartilhamento ou a API falhou: cai no fallback abaixo.
@@ -26,7 +28,7 @@ export function ShareButton({ result }: ShareButtonProps) {
 
     try {
       await navigator.clipboard.writeText(url);
-      setFeedback("Setup copiado!");
+      setFeedback(t.share.copied);
     } catch {
       setFeedback(url);
     } finally {
@@ -37,7 +39,7 @@ export function ShareButton({ result }: ShareButtonProps) {
   return (
     <div>
       <button type="button" className={styles.button} onClick={handleShare}>
-        🔗 Compartilhar
+        {t.share.button}
       </button>
       {feedback && <p className={styles.feedback}>{feedback}</p>}
     </div>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useI18n } from "../i18n/I18nContext";
 import styles from "./SetupSection.module.css";
 
 interface SetupSectionProps {
@@ -8,7 +9,9 @@ interface SetupSectionProps {
   children: ReactNode;
 }
 
-export function SetupSection({ title, onReroll, rerollLabel = "Sortear novamente", children }: SetupSectionProps) {
+export function SetupSection({ title, onReroll, rerollLabel, children }: SetupSectionProps) {
+  const { t } = useI18n();
+
   return (
     <section className={styles.section}>
       <div className={styles.header}>
@@ -16,7 +19,7 @@ export function SetupSection({ title, onReroll, rerollLabel = "Sortear novamente
       </div>
       <div className={styles.content}>{children}</div>
       <button type="button" className={styles.rerollButton} onClick={onReroll}>
-        ↻ {rerollLabel}
+        ↻ {rerollLabel ?? t.setup.reroll}
       </button>
     </section>
   );

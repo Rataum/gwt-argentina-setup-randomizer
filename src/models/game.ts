@@ -19,12 +19,12 @@ export interface NeutralBuilding {
   letter: string;
 }
 
+/**
+ * Um mestre de estação. Só o `id` faz parte do sorteio; o nome e o texto de
+ * pontuação dependem do idioma e ficam em `i18n/translations.ts`.
+ */
 export interface StationMaster {
   id: string;
-  /** Rótulo curto, usado na interface. */
-  name: string;
-  /** Texto completo da pontuação do mestre da estação. */
-  description: string;
 }
 
 export interface PrivateBuilding {

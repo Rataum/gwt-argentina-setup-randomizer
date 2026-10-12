@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { LanguageSwitch } from "../components/LanguageSwitch";
+import { useI18n } from "../i18n/I18nContext";
 import type { HistoryEntry, SetupState } from "../models/game";
 import { getHistory } from "../services/storage";
 import styles from "./HistoryPage.module.css";
@@ -8,35 +10,35 @@ interface HistoryPageProps {
   onBack: () => void;
 }
 
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
 function toSetupState(entry: HistoryEntry): SetupState {
   const { masterSeed, neutralSeed, stationMasterSeed, playerSeed, citySeed } = entry;
   return { masterSeed, neutralSeed, stationMasterSeed, playerSeed, citySeed };
 }
 
 export function HistoryPage({ onOpenEntry, onBack }: HistoryPageProps) {
+  const { t } = useI18n();
   const history = useMemo(() => getHistory(), []);
+
+  function formatDate(iso: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return iso;
+    return t.history.formatDate(date);
+  }
 
   return (
     <main className={styles.page}>
       <div className={styles.header}>
         <button type="button" className={styles.backButton} onClick={onBack}>
-          ← Início
+          {t.history.back}
         </button>
-        <h1 className={styles.title}>Histórico</h1>
+        <h1 className={styles.title}>{t.history.title}</h1>
+        <div className={styles.languageSlot}>
+          <LanguageSwitch />
+        </div>
       </div>
 
       {history.length === 0 ? (
-        <p className={styles.empty}>Nenhum setup gerado ainda. Toque em "Novo setup" para começar.</p>
+        <p className={styles.empty}>{t.history.empty}</p>
       ) : (
         <div className={styles.list}>
           {history.map((entry) => (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "../i18n/I18nContext";
 import type { SetupResult } from "../models/game";
 import { formatSetupAsText } from "../services/formatSetup";
 import styles from "./ActionButton.module.css";
@@ -8,15 +9,16 @@ interface CopySetupButtonProps {
 }
 
 export function CopySetupButton({ result }: CopySetupButtonProps) {
+  const { t } = useI18n();
   const [feedback, setFeedback] = useState<string | null>(null);
 
   async function handleCopy() {
-    const text = formatSetupAsText(result);
+    const text = formatSetupAsText(result, t);
     try {
       await navigator.clipboard.writeText(text);
-      setFeedback("Configuração copiada!");
+      setFeedback(t.copy.copied);
     } catch {
-      setFeedback("Não foi possível copiar automaticamente.");
+      setFeedback(t.copy.failed);
     } finally {
       setTimeout(() => setFeedback(null), 2500);
     }
@@ -25,7 +27,7 @@ export function CopySetupButton({ result }: CopySetupButtonProps) {
   return (
     <div>
       <button type="button" className={styles.button} onClick={handleCopy}>
-        📋 Copiar configuração
+        {t.copy.button}
       </button>
       {feedback && <p className={styles.feedback}>{feedback}</p>}
     </div>
