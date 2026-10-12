@@ -110,6 +110,7 @@ src/
 │   ├── seedGenerator.ts    criação de seeds novas e derivação de sub-seeds
 │   ├── storage.ts          histórico local (localStorage)
 │   └── urlState.ts         leitura/escrita da seed na URL
+├── i18n/           Textos PT/EN, detecção de idioma e contexto
 ├── hooks/
 │   └── useSetup.ts         estado React do setup atual + ações
 ├── pages/          HomePage, SetupPage, HistoryPage
@@ -189,10 +190,55 @@ Em `src/services/__tests__/urlState.test.ts`:
 - uma URL com seed válida abre a configuração correspondente (round-trip);
 - overrides de seção (`ns`/`ps`/`cs`) na URL são respeitados.
 
+Em `src/i18n/__tests__` e `src/services/__tests__/formatSetup.test.ts`:
+
+- a detecção de idioma respeita a escolha salva, depois a lista do navegador,
+  e cai no idioma padrão quando nada é suportado;
+- português e inglês têm exatamente as mesmas chaves, sem textos vazios, e
+  todos os mestres de estação têm nome e descrição nos dois idiomas;
+- o texto de copiar/compartilhar sai no idioma pedido com o mesmo sorteio.
+
 Em `src/utils/__tests__/random.test.ts`:
 
 - o PRNG é determinístico e sempre gera números em `[0, 1)`;
 - o `shuffle` produz permutações válidas e não modifica o array original.
+
+## Idiomas
+
+O app está disponível em **português (PT)** e **inglês (EN)**.
+
+- **Detecção automática**: na primeira visita, o idioma vem das preferências
+  do navegador (`navigator.languages`). Vale o primeiro idioma da lista que o
+  app suporta — qualquer variante de português (`pt`, `pt-BR`, `pt-PT`) abre
+  em português e qualquer variante de inglês abre em inglês. Se nenhum for
+  suportado (ex.: espanhol), abre em inglês (`FALLBACK_LANGUAGE` em
+  `src/i18n/detectLanguage.ts`).
+- **Botão PT | EN**: aparece no topo de todas as telas. A escolha é salva no
+  `localStorage` (`gwt-argentina:language`) e passa a valer nas próximas
+  visitas, acima da detecção do navegador.
+- **O idioma não muda o setup**: a seed gera exatamente o mesmo sorteio em
+  qualquer idioma (só os textos mudam), e o link compartilhado não carrega o
+  idioma — cada pessoa vê o app no seu próprio.
+
+### Como funciona (sem biblioteca)
+
+Todos os textos ficam em `src/i18n/translations.ts`: a interface
+`Translations` define quais textos existem e `ptBR`/`en` os preenchem — se
+faltar uma tradução, o TypeScript avisa. `I18nContext.tsx` guarda o idioma
+atual e os componentes leem os textos com `const { t } = useI18n()`.
+
+Os mestres das estações têm nome e texto de pontuação por idioma
+(`stationMasters`, indexado pelo id). O texto em inglês é uma tradução do
+texto em português, não a redação oficial do livro de regras.
+
+### Adicionar um idioma
+
+1. Em `src/i18n/translations.ts`: incluir o código em `Language`, uma entrada
+   em `LANGUAGES` e um novo objeto `Translations` em `translations`.
+2. Em `src/i18n/detectLanguage.ts`: ensinar `matchLanguage` e `isLanguage` a
+   reconhecer o novo código.
+3. Rodar `npm run test` — o teste de paridade confere se todas as chaves
+   foram traduzidas.
 
 ## Histórico local
 
@@ -204,4 +250,12 @@ histórico por si só (para não poluir a lista); se quiser guardar esse
 estado específico, use o botão **Compartilhar**, que sempre gera um link
 fiel ao que está na tela naquele momento.
 
-Para acessar, utilize o link https://rataum.github.io/gwt-argentina-setup-randomizer/
+## Possíveis expansões futuras (fora do escopo deste MVP)
+
+A arquitetura já deixa espaço para, no futuro:
+
+- suportar outros jogos da série Great Western Trail;
+- um "modo de montagem" passo a passo;
+- selecionar o número de jogadores para automatizar mais partes do setup.
+
+Nenhuma dessas funcionalidades foi implementada agora, de propósito.

@@ -1,13 +1,17 @@
+import type { Translations } from "../i18n/translations";
 import type { SetupResult } from "../models/game";
 
 /**
- * Texto do setup para copiar/compartilhar. Quando `url` é informada, ela é
- * adicionada ao final (usado pelo botão Compartilhar).
+ * Texto do setup para copiar/compartilhar, no idioma de `t`. Quando `url` é
+ * informada, ela é adicionada ao final (usado pelo botão Compartilhar).
  */
-export function formatSetupAsText(result: SetupResult, url?: string): string {
+export function formatSetupAsText(result: SetupResult, t: Translations, url?: string): string {
   const neutralLine = result.neutralBuildings.map((building) => building.letter).join(" ");
   const stationMastersLines = result.stationMasters
-    .map((master, index) => `${index + 1} — ${master.name} (mestre ${master.id})`)
+    .map((master, index) => {
+      const name = t.stationMasters[master.id]?.name ?? master.id;
+      return t.text.stationMasterLine(index + 1, name, master.id);
+    })
     .join("\n");
   const playersLine = result.privateBuildings.map((b) => `${b.number}${b.side}`).join(" ");
   const citiesLines = result.cities.map((city) => `${city.name} ${city.side}`).join("\n");
@@ -17,16 +21,16 @@ export function formatSetupAsText(result: SetupResult, url?: string): string {
     "",
     `Seed: ${result.masterSeed}`,
     "",
-    "Construções neutras:",
+    t.text.neutralBuildings,
     neutralLine,
     "",
-    "Mestres das estações:",
+    t.text.stationMasters,
     stationMastersLines,
     "",
-    "Construções dos jogadores:",
+    t.text.playerBuildings,
     playersLine,
     "",
-    "Cidades:",
+    t.text.cities,
     citiesLines,
   ];
 

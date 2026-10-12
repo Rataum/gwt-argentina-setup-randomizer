@@ -58,6 +58,13 @@
   cursor: pointer;
 }
 
+@media (max-width: 420px) {
+  .title {
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+  }
+}
+
 @media (min-width: 640px) {
   .footerActions {
     flex-direction: row;

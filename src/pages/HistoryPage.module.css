@@ -32,6 +32,10 @@
   color: var(--color-accent-strong);
 }
 
+.languageSlot {
+  margin-left: auto;
+}
+
 .list {
   display: flex;
   flex-direction: column;
